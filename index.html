@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -145,13 +145,51 @@
   .shop-btn:hover { transform: scale(1.02); border-color: var(--purple); }
 
   /* ── GAME SCREEN ── */
-  #game-screen { z-index: 5; }
+  #game-screen { z-index: 5; overflow: hidden; }
+
+  /* 16:9 container */
+  .game-viewport {
+    position: relative;
+    width: min(100vw, 177.78vh);
+    height: min(100vh, 56.25vw);
+    display: flex; align-items: center; justify-content: center;
+  }
 
   .game-layout {
-    display: flex; flex-direction: column;
-    align-items: center; gap: 12px;
-    width: 100%; max-width: 500px;
-    padding: 12px;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    padding: 10px 14px;
+    box-sizing: border-box;
+  }
+
+  /* In landscape 16:9: grid + tray side by side */
+  @media (orientation: landscape) and (min-aspect-ratio: 14/10) {
+    .game-layout {
+      grid-template-rows: auto 1fr;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "topbar topbar"
+        "gridwrap tray";
+      gap: 10px;
+    }
+    .top-bar    { grid-area: topbar; }
+    .grid-wrap  { grid-area: gridwrap; align-self: center; justify-self: center; }
+    .piece-tray {
+      grid-area: tray;
+      flex-direction: column !important;
+      justify-content: space-evenly !important;
+      width: auto !important;
+      min-width: 100px;
+      min-height: unset !important;
+      height: 100%;
+      padding: 12px 10px;
+    }
+    .hint-row { display: none; }
   }
 
   /* ── TOP BAR ── */
@@ -198,6 +236,7 @@
     backdrop-filter: blur(10px);
     box-shadow: 0 0 40px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
     position: relative;
+    display: flex; align-items: center; justify-content: center;
   }
   #game-canvas { display: block; border-radius: 12px; }
 
@@ -375,21 +414,22 @@
   <div class="daily-bonus" id="daily-bonus-btn">
     <div class="icon">🎁</div>
     <div class="info">
-      <div class="title">Ежедневный бонус</div>
-      <div class="desc" id="daily-desc">Получи монеты!</div>
+      <div class="title">Щоденний бонус</div>
+      <div class="desc" id="daily-desc">Отримай монети!</div>
     </div>
     <div class="amount" id="daily-amount">+150 🪙</div>
   </div>
-  <button class="btn btn-primary" id="start-btn">▶ ИГРАТЬ</button>
+  <button class="btn btn-primary" id="start-btn">▶ ГРАТИ</button>
   <div class="shop-btn" id="open-shop-btn">🎨 Магазин тем</div>
 </div>
 
 <!-- ══════════ GAME SCREEN ══════════ -->
 <div id="game-screen" class="screen hidden">
+  <div class="game-viewport">
   <div class="game-layout">
     <div class="top-bar">
       <div class="score-box">
-        <div class="lbl">Счёт</div>
+        <div class="lbl">Рахунок</div>
         <div class="val" id="score-val">0</div>
       </div>
       <div class="combo-badge" id="combo-badge">
@@ -412,24 +452,25 @@
       <div class="piece-slot" id="slot-1"><canvas class="piece-canvas" id="piece-1"></canvas></div>
       <div class="piece-slot" id="slot-2"><canvas class="piece-canvas" id="piece-2"></canvas></div>
     </div>
-    <div class="line-hint">Перетащи фигуру на поле</div>
+    <div class="line-hint hint-row">Перетягни фігуру на поле</div>
+  </div>
   </div>
 </div>
 
 <!-- ══════════ PAUSE SCREEN ══════════ -->
 <div id="pause-screen" class="screen hidden">
   <h2>⏸ ПАУЗА</h2>
-  <button class="btn btn-primary" id="resume-btn">▶ ПРОДОЛЖИТЬ</button>
+  <button class="btn btn-primary" id="resume-btn">▶ ПРОДОВЖИТИ</button>
   <button class="btn btn-secondary" id="pause-restart-btn">↩ РЕСТАРТ</button>
   <button class="btn btn-secondary" id="to-menu-btn">🏠 МЕНЮ</button>
 </div>
 
 <!-- ══════════ GAME OVER SCREEN ══════════ -->
 <div id="gameover-screen" class="screen hidden">
-  <div class="gameover-title">ИГРА ОКОНЧЕНА</div>
+  <div class="gameover-title">ГРА ЗАКІНЧЕНА</div>
   <div class="result-grid">
     <div class="result-card">
-      <div class="lbl">Счёт</div>
+      <div class="lbl">Рахунок</div>
       <div class="val" id="final-score" style="color:var(--cyan)">0</div>
     </div>
     <div class="result-card" id="best-card">
@@ -441,12 +482,12 @@
       <div class="val" id="final-combo" style="color:var(--pink)">x1</div>
     </div>
     <div class="result-card">
-      <div class="lbl">Линий</div>
+      <div class="lbl">Ліній</div>
       <div class="val" id="final-lines" style="color:var(--green)">0</div>
     </div>
   </div>
   <div class="gameover-btns">
-    <button class="btn btn-primary" id="restart-btn">↩ ЕЩЁ РАЗ</button>
+    <button class="btn btn-primary" id="restart-btn">↩ ЩЕ РАЗ</button>
     <button class="btn btn-secondary" id="menu-btn">🏠 МЕНЮ</button>
   </div>
 </div>
@@ -475,7 +516,7 @@ const THEMES = {
     bg: '#1a1a2e', grid: 'rgba(255,255,255,.05)', glow: true
   },
   candy: {
-    name: '🍬 Конфеты',
+    name: '🍬 Цукерки',
     price: 200,
     colors: ['#ff6eb4','#ffb347','#87ceeb','#98fb98','#dda0dd','#f0e68c','#ff7f7f','#b0e0e6'],
     bg: '#2d1b3d', grid: 'rgba(255,200,255,.06)', glow: true
@@ -493,13 +534,13 @@ const THEMES = {
     bg: '#000e1a', grid: 'rgba(0,200,255,.05)', glow: true
   },
   forest: {
-    name: '🌲 Лес',
+    name: '🌲 Ліс',
     price: 200,
     colors: ['#228b22','#32cd32','#7cfc00','#adff2f','#00ff7f','#3cb371','#2e8b57','#66cdaa'],
     bg: '#0a1a0a', grid: 'rgba(50,200,50,.05)', glow: false
   },
   galaxy: {
-    name: '🌌 Галакси',
+    name: '🌌 Галактика',
     price: 500,
     colors: ['#9400d3','#8a2be2','#da70d6','#ee82ee','#ff00ff','#c71585','#ff69b4','#7b68ee'],
     bg: '#05001a', grid: 'rgba(150,0,255,.06)', glow: true
@@ -597,10 +638,26 @@ const ctx = canvas.getContext('2d');
 let CELL, PAD;
 
 function sizeCanvas(){
-  const maxW = Math.min(window.innerWidth - 44, 460);
-  CELL = Math.floor((maxW - 20) / COLS);
+  const vp = document.querySelector('.game-viewport');
+  const vpW = vp ? vp.clientWidth : window.innerWidth;
+  const vpH = vp ? vp.clientHeight : window.innerHeight;
+  const isLandscape = vpW > vpH * 1.4;
+  let maxW, maxH;
+  if(isLandscape){
+    // tray is on the side (~120px), top bar ~56px, padding 20px
+    const trayW = 120;
+    maxH = vpH - 56 - 20;
+    maxW = vpW - trayW - 28 - 20;
+    CELL = Math.floor(Math.min(maxW, maxH) / COLS);
+  } else {
+    // tray below, top bar ~56px, tray ~110px, hints ~20px, padding 20
+    const available = vpH - 56 - 110 - 36;
+    maxW = vpW - 28;
+    CELL = Math.floor(Math.min(maxW, available) / COLS);
+  }
+  CELL = Math.max(CELL, 20);
   PAD = 4;
-  canvas.width = COLS * CELL + PAD*2;
+  canvas.width  = COLS * CELL + PAD*2;
   canvas.height = ROWS * CELL + PAD*2;
 }
 
@@ -1099,12 +1156,12 @@ function checkDailyBonus(){
   const desc = document.getElementById('daily-desc');
   const amount = document.getElementById('daily-amount');
   if(canClaim){
-    desc.textContent = 'Забери ежедневный бонус!';
+    desc.textContent = 'Забери щоденний бонус!';
     amount.textContent = '+150 🪙';
     document.getElementById('daily-bonus-btn').style.opacity='1';
   } else {
     const rem = Math.ceil((msInDay - (now-last)) / 3600000);
-    desc.textContent = `Следующий через ${rem}ч`;
+    desc.textContent = `Наступний через ${rem}год`;
     amount.textContent = '🔒';
     document.getElementById('daily-bonus-btn').style.opacity='.5';
   }
@@ -1118,7 +1175,7 @@ document.getElementById('daily-bonus-btn').addEventListener('click', ()=>{
   state.lastBonus = Date.now();
   saveState();
   sfxBonus();
-  showNotif('🎁 +150 монет получено!', '#ffe600');
+  showNotif('🎁 +150 монет отримано!', '#ffe600');
   document.getElementById('start-best').textContent = state.best.toLocaleString();
   updateCoinsDisplay();
   checkDailyBonus();
@@ -1150,18 +1207,18 @@ function buildShop(){
       <div class="theme-preview">${preview}</div>
       <div class="theme-name">${theme.name}</div>
       <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px">
-        ${theme.price===0?'Бесплатно':state.coins>=theme.price?`🪙${theme.price}`:`🔒${theme.price}`}
+        ${theme.price===0?'Безкоштовно':state.coins>=theme.price?`🪙${theme.price}`:`🔒${theme.price}`}
       </div>
     `;
     card.addEventListener('click', ()=>{
       resumeAC();
       if(theme.price > 0 && state.coins < theme.price){
-        showNotif(`Нужно 🪙${theme.price}`, '#ff2244'); return;
+        showNotif(`Потрібно 🪙${theme.price}`, '#ff2244'); return;
       }
       if(theme.price > 0 && state.theme !== key){
         state.coins -= theme.price;
         saveState();
-        showNotif('🎨 Тема куплена!', '#a855f7');
+        showNotif('🎨 Тему куплено!', '#a855f7');
       }
       state.theme = key; saveState(); buildShop();
       // redraw pieces
